@@ -1,0 +1,25 @@
+<p>The simplest example I can think of requires at least two scripts</p>
+<ol>
+    <li>An entry-point script (<code>main.js</code>)</li>
+    <li>Some simple dependency script (<code>dep.js</code>)</li>
+</ol>
+<p>And, of course, a page to load all of this, <code>simple.html</code></p>
+<p>And to keep the example super-simple, these scripts will live alongside require.js so we have
+    a structure like:</p>
+<pre>
+    simple.html
+    `- js
+        |- require.js
+        |- main.js
+        `- dep.js
+</pre>
+
+<code>simple.html</code> forms the entry-point for the application. To get RequireJS working,
+this is the place where we will reference require.js. We also add a <code>data-main</code> attribute
+to the script inclusion with a path <i>relative to the location of index.html</i> for RequireJS to load
+up. We'll use <code>main.js</code> for this. So our simple.html could look like:
+
+<pre>
+    &lt;html>
+    </html>
+</pre>
