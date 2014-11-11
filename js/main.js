@@ -35,6 +35,7 @@
             'lib/namedModule',
             'jquery'
     ], function(app, nm, $) {
+        window.$$ = $;
         window.console.log(JSON.stringify(nm));
         angular.bootstrap($('#content'), ['angularApp']);
     });

@@ -52,6 +52,7 @@ define([
     }
 
     function createFooter() {
+        var copyQuickNavToHeading = $('body [data-no-copy-toc="true"]').length == 0;
         var relativeLinks = createRelativeLinks();
         var footer = $("div#footer");
         if (footer.length == 0) {
@@ -100,10 +101,11 @@ define([
         if (existingClone.length) {
             existingClone.remove();
         }
-        var clone = footer.clone();
-        clone.attr("id", "footer-clone");
-        clone.insertAfter("ol#toc");
-        
+        if (copyQuickNavToHeading) {
+            var clone = footer.clone();
+            clone.attr("id", "footer-clone");
+            clone.insertAfter("ol#toc");
+        }
         window.setTimeout(function() {
             if (footer.offset().top > window.innerHeight) {
                 var middleAnchor = $("<a></a>");
