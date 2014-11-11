@@ -8,7 +8,7 @@ define([], function() {
             ['Configuration', '#/config'],
             ['jQuery done better', '#/jqueryAMD'],
             ['Recommended project structure', '#/structure'],
-            ['Angular & RequireJS: one approach', '#/angular'],
+            ['Angular & RequireJS: an approach', '#/angular'],
             ['RequireJS plugins', '#/plugins']
         ]
     };

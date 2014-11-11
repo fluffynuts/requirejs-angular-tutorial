@@ -80,7 +80,7 @@ define([
         footer.append(prevWrapper);
         var middleWrapper = $("<div></div>");
         middleWrapper.css({
-                width: "20%",
+                width: "10%",
                 display: "inline-block",
                 textAlign: "center"
         });
@@ -88,7 +88,7 @@ define([
 
         var nextWrapper = $("<div></div>");
         nextWrapper.css({
-                width: "40%",
+                width: "45%",
                 display: "inline-block",
                 textAlign: "right"
         });

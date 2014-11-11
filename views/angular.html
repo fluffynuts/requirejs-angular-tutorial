@@ -157,6 +157,12 @@ define([], function() {
     example, instead of trying to test if Angular's routing was properly set up with 
     <code>inject</code>, you could inject a completely mocked out <code>routeProvider</code>
     from just requiring <code>route.js</code> instead of requiring all of the app configuration.
+    Of course, the converse argument can be made that whilst you're now not testing that the
+    underlying libraries work (which is a good thing), you're also not testing that you're
+    interacting with them correctly -- you could have erroneous tests satisfied by erroneous
+    code. So pick whatever works for you (:. My personal preference is a blend of the above --
+    still use AngularJS testing but with the sort-of "disconnected" angular module configuration
+    outlined above. It may be a matter of personal preference, but it just seems neater to me.
 </p>
 <p>This isn't necessarily <i>better</i>, it's just <i>another way</i> which potentially might be
     a little simpler, depending on your approach.</p>
