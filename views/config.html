@@ -1,0 +1,144 @@
+<div>
+    <p>If you place all of your scripts under one folder and you have no special requirements, there's no
+        real need for special configuration. Consider again the simple example 
+        <a href="demo/simple/index.html" target="_blank">here</a>. The problem is that the more common use
+        case has some warts which we need to deal with.</p>
+    <h3>#1 Require.js lives outside of your scripts folder</h3>
+    <p>This is quite common -- you'd like to keep your library scripts under, say, <code>lib</code> (or
+        reference them from under <code>node_modules</code> or <code>bower_components</code> if you're
+        using one of those systems to install dependencies). RequireJS will, by default, load dependencies
+        relative to itself. But you can change that:</p>
+<pre data-no-run="true">
+    requirejs.config({
+        baseUrl: 'js',
+    });
+</pre>
+    <p>Easy enough. Bear in mind that this base path is also used for loading RequireJS plugins, if you
+        have any, which becomes annoying once you are using a plugin provided by a system like <code>bower</code>
+        or <code>npm</code>. I haven't figured out a &quot;clean&quot; approach here yet; for now, if you're
+        going to use a RequireJS plugin (like the <code>text</code> or <code>json</code> plugins, place them
+        in your scripts folder). More on <a href="#/plugins">plugins</a> later.</p>
+    <h3>#2 Modules which aren't AMD-aware</h3>
+    <p>One solution here is to find someone who has made the module AMD-aware or who has provided a process
+        for making a local copy AMD-aware by modifying it. I've found at least one solution like this for
+        AngularJS, but due to my own laziness and skepticism, I've left them out. Instead, I've opted
+        for getting RequireJS to load AngularJS as a pre-requirement of my application modules (cut-down
+        example follows):</p>
+<pre data-no-run="true">
+    requirejs.config({
+        baseUrl: 'js',
+        shim: {
+            'angular-route': {
+                deps: [ 'angular' ]
+            },
+            'app': {
+                deps: [ 'angular', 'angular-route' ]
+            }
+        }
+    });
+</pre>
+    <p>This still loads AngularJS in the more traditional sense: <code>window.angular</code> is available
+        and if something actually specifies Angular as a dependency, it gets <code>undefined</code> as
+        the value passed into it. The <code>shim</code> configuration ensures that when the module
+        <code>app</code> is requested (as I will do, at the bottom of my <a href="js/main.js">main.js</a>,
+        <code>angular</code> and <code>angular-route</code> are already loaded. Similarly, I use a shim
+        to ensure that <code>angular</code> is loaded before <code>angular-route</code> otherwise
+        <code>angular-route</code> will barf when it is loaded (most likely). Why? Because of the 'A' in
+        AMD: dependencies are loaded asynchronously, so if you have dependency chains, you need to make sure
+        that they are resolved in configuration (as above), or with nested <code>define</code> blocks so that
+        pre-requisites are loaded before they are needed</p>
+    <h3>#3 alias paths</h3>
+    <p>I mentioned above that you might be getting library dependencies out of a place that is not where
+        your application scripts are kept. It's a really good idea to stick to this strategy, by the way! We could do:
+<pre data-no-run="true">
+define(['../lib/someLibrary/someLibrary.min.js'], function(libDep) {
+    // use libDep here
+});
+</pre>
+        <p>The problem is that this would make module referencing more verbose than it really has to be and fragile:
+            if the external library moves, we have to go update everything which depends on it ):</p>
+        <p>For example, what happens if you decide to get that library from <code>npm</code> or <code>bower</code>
+            instead of copying it into <code>lib</code> manually? Then you need to go update everything that depends
+            on <code>someLibrary</code>. Tedious.</p>
+        <p>The solution is the <code>paths</code> section of the RequireJS config:</p>
+<pre data-no-run="true">
+    requirejs.config({
+        baseUrl: 'js',
+        paths: {
+            'angular': '../node_modules/angular/angular',
+            'angular-route': '../node_modules/angular-route/angular-route',
+        },
+        shim: {
+            'angular-route': {
+                deps: [ 'angular' ]
+            },
+            'app': {
+                deps: [ 'angular', 'angular-route' ]
+            }
+        }
+    });
+</pre>
+    <h3>#4 Legacy modules which are AMD aware but default to global scope</h3>
+    <p>I'm looking at you, jQuery. Actually, jQuery is quite the hospitable library here. There are myriad
+        legacy Javascript applications out there, all using $ from the global scope, all oblivious of AMD.
+        Retooling your application to support AMD can be a pain, but if you're big into AMD (say because you 
+        have to integrate with unknown, monolithic container applications), not having
+        the option of a modular library can be just as painful. jQuery can meet you half-way, providing an injection
+        value that you can use for a local <code>$</code>, without too much effort:</p>
+<pre data-no-run="true">
+requirejs.config({
+    baseUrl: 'js',
+    paths: {
+        'angular': '../../../node_modules/angular/angular',
+        'angular-route': '../../../node_modules/angular-route/angular-route',
+        'jquery': '../../../node_modules/jquery/dist/jquery',
+    },
+    map: {
+    },
+    shim: {
+        'angular-route': {
+            deps: [ 'angular' ]
+        },
+        'someApp': {
+            deps: [ 'angular', 'angular-route' ]
+        }
+    }
+});
+define('inline1', ['jquery'], function(myDollar) {
+    return {
+        demo: function() {
+            myDollar.get('someData.json').then(function(data) {
+                var mkDiv = function(withText) {
+                    var theDiv = myDollar('&lt;div&gt;&lt;/div&gt;');
+                    if (withText) {
+                        theDiv.text(withText);
+                    }
+                    return theDiv;
+                }
+                var body = myDollar('body');
+                var container = myDollar(mkDiv());
+                body.append(container);
+                container.append(mkDiv('myDollar.get result: ' + data.title));
+                container.append(mkDiv('global $ object type: ' + typeof($)));
+                // scroll down...
+                body.animate({scrollTop: myDollar(document).height() }, 500);
+                window.setTimeout(function() {
+                    container.remove();
+                }, 5000);
+            });
+        }
+    }
+});
+require(['inline1'], function(mod) {
+    mod.demo();
+});   
+
+</pre>
+<p>
+<a href="demo/jquery1/index.html" target="_blank">View the code in action here</a>
+since this tutorial already has jQuery configured privately (we'll see how in the 
+    <a href="#/jqueryAMD">next part</a>) and I haven't figured out how to re-configure
+    RequireJS from scratch on the fly (or a nice way to get back to a prior state) -- but that's not really in the 
+    scope of RequireJS's utility, so I wouldn't be surprised if it just wasn't built to be able to do that.
+</p>
+</div>

@@ -1,8 +1,8 @@
 define([
         'config',
-        'angular',
-        'jquery'
-       ], function(config) {
+        'jquery',
+        'angular'
+       ], function(config, $) {
     var target = $("ol#toc");
     if (target.length === 0) {
         return;
@@ -57,6 +57,14 @@ define([
         if (footer.length == 0) {
             footer = $("<div></div>");
             footer.attr("id", "footer");
+            footer.css({
+                bottom: "20px",
+                width: "90%",
+                marginLeft: "auto",
+                marginRight: "auto",
+                marginTop: "20px",
+                marginBottom: "10px"
+            });
         }
         footer.children().remove();
         var prevWrapper = $("<div></div>");
@@ -88,6 +96,13 @@ define([
         }
         footer.append(nextWrapper);
         $("body").append(footer);
+        var existingClone = $("#footer-clone");
+        if (existingClone.length) {
+            existingClone.remove();
+        }
+        var clone = footer.clone();
+        clone.attr("id", "footer-clone");
+        clone.insertAfter("ol#toc");
         
         window.setTimeout(function() {
             if (footer.offset().top > window.innerHeight) {
@@ -96,6 +111,7 @@ define([
                 middleAnchor.text("Top");
                 middleAnchor.on("click", function() {
                     $(document).scrollTop(0);
+                    return false;
                 });
                 middleWrapper.append(middleAnchor);
             }

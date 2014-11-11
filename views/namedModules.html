@@ -1,0 +1,39 @@
+<div>
+    <p>
+        In the preceding example, we took advantage of the resolution of modules from their paths (remember
+        how we loaded <code>dep.js</code> simply by asking RequireJS to resolve the dependency <code>dep</code>?).
+    </p>
+    <p>Typically, this is the right thing to do but my examples from here on out will be easier to demonstrate
+        if I use named modules -- so I'm going to introduce that concept first.</p>
+    <p>Up until now, we've defined modules like so:</p>
+    <pre data-no-run="true">
+define(['dependency', 'otherdependency'], function(dep1, dep2) {
+    // magic happens!
+});
+    </pre>
+    <p>And the file location has determined the name of the module.</p>
+    <p>But we can insert another argument at the start of that definition to explicity state the name of the
+            module:</p>
+    <pre data-no-run="true">
+define('someModule', ['dependency', 'otherdependency'], function(dep1, dep2) {
+    // magic happens!
+});
+    </pre>
+    <p>You might be wondering why... The simplest answer is because RequireJS has a bundling mechanism
+        which can pack all of your scripts into one giant file (minified), and then there are no paths
+        to resolve modules with -- so modules need names. In that case, the RequireJS bundler automatically
+        names your modules for you, based on their paths. Indeed, if you're going to use the preferred
+        strategy of one file per module, I'd <i>highly recomment</i> <b>NOT</b> naming your modules.</p>
+    <p>If you're going to do your own scoping (like I will from here on out), or your own bundling
+        mechansim (like using ASP.NET's MVC bundling), then you can take advantage of the fact that you
+        can manually name your modules.</p>
+    <p>The question might also arise as to what strategy to take with respect to bundling. Of course, the
+        situation should direct you (and here's my opinion, which is just that: an opinion):</p>
+    <ul>
+        <li>Small project, maybe 10 scripts, each page only wants a handful -- don't bother</li>
+        <li>Large project, user stories require a small number of the overall scripts at any time: don't do it
+            (you save the user's load time that would have been wasted on loading unused scripts)</li>
+        <li>Medium-to-large project, high re-use of code: benchmark it and then determine if you need to
+            bundle. Remember that each module is only downloaded once anyway and cached by the client.</li>
+    </ul>
+</div>

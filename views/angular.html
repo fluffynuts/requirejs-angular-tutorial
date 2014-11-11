@@ -1,0 +1,163 @@
+<div>
+    <p>There are a multitude of mechanisms for robbing a feline of their outer casing. The mechanism outlined below
+        for using AngularJS with RequireJS is just one, which I've used for this tutorial. It's a blend of
+        my desire not to post-process library scripts into AMDs and some examples I've seen online where
+        controllers are still fully defined in modules. In this variation, though, controllers (and the idea
+        could be extended to services and factories alike) are injected into a main application as
+        <i>configuration</i> and the main application wires up using Angular directives, meaning that the
+        controllers aren't directly dependent on angular. First, the configuration:</p>
+<pre data-no-run="true">
+(function() {
+    requirejs.config({
+        baseUrl: 'js',
+        paths: {
+            'angular': '../node_modules/angular/angular',
+            'angular-route': '../node_modules/angular-route/angular-route',
+            'jquery': '../node_modules/jquery/dist/jquery',
+            'prettify': '../bower_components/google-code-prettify/bin/prettify.min'
+        },
+        map: {
+            '*': { 'jquery': 'jquery-private' },
+            'jquery-private': { 'jquery' : 'jquery' }
+        },
+        shim: {
+            'angular-route': {
+                deps: [ 'angular' ]
+            },
+            'magic': {
+                deps: [ 'prettify' ]
+            },
+            'app': {
+                deps: [ 'angular', 'angular-route', 'toc', 'magic' ]
+            }
+        }
+    });
+
+    require(['app']);
+})();
+</pre>
+<p>Note that I still stick to keeping my main.js within a self-executing function. It's good practice to stick
+    to this, though, technically, in your modules, you don't have to as they <b>should be</b> contained all within
+    a <code>define</code> block</p>
+<p>I use <code>path</code> directives to keep references easier to read and maintain.
+    I also use <code>shim</code> directives to set up Angular dependencies (such as ngRoute). The config
+    above basically states the following dependency tree:</p>
+<pre data-prettify="false">
+    app
+    |- angular
+        `- angular-route
+    |- toc
+    `- magic
+        `- prettify
+</pre>
+<p>Where <code>angular</code>, <code>angular-route</code>, and <code>prettify</code> are not AMD modules but the load
+    order is kept correct by RequireJS because of the shim dependency tree.</p>
+<p>Next, an example controller:</p>
+<pre data-no-run="true">
+(function() {
+    define(['magic', 'jquery'],
+        function(magic, $) {
+            return [
+                '$scope',
+                function(scope) {
+                    scope.$watch('assignments', function(value) {
+                        var scrollTopEl = $("div#footer-clone").length ? $("div#footer-clone") : $("body");
+                        $('body').animate({
+                            scrollTop: scrollTopEl.offset().top
+                        }, 1000);
+                        magic();
+                    });
+                }
+            ];
+    });
+})();
+</pre>
+<p>This is the <code>defaultController</code> used to display all of the tutorial pages. It doesn't do
+    much except make sure that prettification of code elements is performed whenever Angular navigation
+    occurrs and scrolls to the quick navigation at the top of the content area. Obviously, I'd expect
+    production controllers to be more interesting, logic-wise. What may be of interest though is that the
+    code above doesn't reference <code>angular</code> anywhere. No reference to the application name, no
+    decision about what this controller is to be called, which frees you to alter that in one place, such
+    as <code>app.js</code>:
+<pre data-no-run="true">
+define([
+        'jquery',
+        'routing',
+        'controllers/default'
+            ], function(
+                $,
+                config,
+                defaultController
+            ) {
+                'use strict';
+                var app = angular.module('angularApp', ['ngRoute']);
+                app.config(config);
+                app.controller('defaultController', defaultController);
+
+                angular.bootstrap($('#content'), ['angularApp']);
+});
+</pre>
+</p>
+<p>You might pick up that I've used the same strategies for routing configuration. Here's my <code>routing.js</code>:
+<pre data-no-run="true">
+define(['config'],
+    function(config) {
+        'use strict';
+        var routing = [
+            '$routeProvider',
+            function(routeProvider) {
+                function viewNameFor(tocItem) {
+                    var hashUrl = tocItem[1];
+                    return hashUrl.replace(/^#\//, '');
+                }
+                function routeUrlFor(tocItem) {
+                    var hashUrl = tocItem[1];
+                    return hashUrl.replace(/^#/, '');
+                }
+                function viewFor(tocItem) {
+                    return ['views/', viewNameFor(tocItem), '.html'].join('');
+                }
+                function controllerFor(tocItem) {
+                    return tocItem[2] || "defaultController";
+                }
+                config.TOC.forEach(function(item) {
+                    routeProvider.when(routeUrlFor(item), {
+                        templateUrl: viewFor(item),
+                        controller:  controllerFor(item)
+                    });
+                });
+                routeProvider.otherwise({
+                        redirectTo: routeUrlFor(config.TOC[0][1])
+                });
+            }];
+    return routing;
+});
+</pre>
+and my <code>config.js</code>, just so you can see how it ties into the routing above:
+<pre data-no-run="true">
+define([], function() {
+    return {
+        'TOC': [
+            ['Intro', '#/home'],
+            ['Why use RequireJS?', '#/why'],
+            ['A simple example', '#/simple'],
+            ['Named modules', '#/namedModules'],
+            ['Configuration', '#/config'],
+            ['jQuery done properly', '#/jqueryAMD'],
+            ['Recommended project structure', '#/structure'],
+            ['Angular & RequireJS: one approach', '#/angular'],
+            ['RequireJS plugins', '#/plugins']
+        ]
+    };
+});
+</pre>
+</p>
+<p>One advantage of the strategy outlined above is that it could potentially be easier to 
+    mock out and test, without having to use Angular's mocking system all of the time. For
+    example, instead of trying to test if Angular's routing was properly set up with 
+    <code>inject</code>, you could inject a completely mocked out <code>routeProvider</code>
+    from just requiring <code>route.js</code> instead of requiring all of the app configuration.
+</p>
+<p>This isn't necessarily <i>better</i>, it's just <i>another way</i> which potentially might be
+    a little simpler, depending on your approach.</p>
+</div>

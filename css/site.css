@@ -1,6 +1,9 @@
 body {
     background-color: #333;
     color: white;
+    height: 100%;
+    margin: 0px;
+    padding: 10px;
 }
 a {
     color: #5cf;
@@ -10,4 +13,7 @@ a:visited {
 }
 a:hover {
     color: #5Fc;
+}
+code {
+    color: yellow;
 }

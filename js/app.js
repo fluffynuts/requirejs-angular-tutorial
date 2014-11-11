@@ -1,13 +1,16 @@
 define([
-        'angularConfig',
-        'controllers/home'
+        'jquery',
+        'routing',
+        'controllers/default'
             ], function(
+                $,
                 config,
-                homeController
+                defaultController
             ) {
                 'use strict';
                 var app = angular.module('angularApp', ['ngRoute']);
                 app.config(config);
-                app.controller('homeController', homeController);
-                return app;
+                app.controller('defaultController', defaultController);
+
+                angular.bootstrap($('#content'), ['angularApp']);
 });

@@ -1,0 +1,56 @@
+<div>
+    <p>Before diving into using any framework or tool, one has to ask the important question:</p>
+    <h3>WHY?!</h3>
+    <p>RequireJS has two distinct primary functions:
+        <ul>
+            <li>Dependency resolution</li>
+            <li>Script loading</li>
+        </ul>
+    </p>
+    <p>A secondary function can be argued as one of compartmentalisation, such that javascript modules
+        cannot interfere with each other. The importance of each of these functions varies between scenarios
+        and it would be difficult to argue which way is &quot;The Best™&quot;</p>
+    <p>For example, one could use the rather low-tech option of correctly ordering script tags to ensure that
+        dependencies are correctly resolved and to handle clashes. But this strategy starts to become more and more
+        painful the larger your system gets</p>
+    <p>You can also use &quot;Poor Man's Namespaces&quot; to keep your code from clashing, for example:</p>
+    <pre data-no-run="true">
+window.SomeNamespace = window.SomeNamespace || {};
+(function(ns) {
+    ns.someFunction = function() {
+    };
+})(window.SomeNamespace);
+    </pre>
+    <p>Which also works, but takes a bit of maintenance. None of these methods provide a bulletproof way to handle
+        dependencies though, which is why a lot of legacy scripts are loaded after JQuery, for instance, and
+        actual logic is only invoked inside a block like:</p>
+    <pre data-no-run="true">
+$(document).ready(function() {
+    // do your magic here
+});
+    </pre>
+    <p>And this is open to strange timing conditions as and when the order of execution of these blocks is
+        changed, eg when changing where a script block is inserted in the containing document. And of course, this
+        method relies on the understanding that Javascript files are (traditionally, at least), loaded top-down,
+        synchronously so you should be guaranteed that in the following scenario:</p>
+    <pre data-no-run="true">
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;script type="text/javascript" src="js/dependency.js"&gt;&lt;/script&gt;
+        &lt;script type="text/javascript" src="js/main.js"&gt;&lt;/script&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+    </pre>
+    <p><code>dependency.js</code> is fully loaded before <code>main.js</code> is introduced to the DOM, meaning
+        that if <code>main.js</code> depends on some exported function in <code>dependency.js</code>, it will run.</p>
+    <p>The problem with that is, of course, that users are impatient. They don't want to wait for synchronous 
+        downloading of large amounts of data. Newer browsers respect the <code>async</code> attribute on 
+        a script tag to make script loading more performant, but then we're back in the boat of trying to resolve
+        dependency resolution</p>
+    <p>Other methods for resolving dependencies include the AngularJS way, which works perfectly well
+        as long as you have
+        taken care of script loading already (either through manual script tags, AMD or some kind of bundling / 
+        minification process).</p>
+</div>

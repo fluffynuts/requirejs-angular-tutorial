@@ -1,0 +1,70 @@
+<div>
+    <p>There is comprehensive documentation at 
+        <a href="http://requirejs.org/docs/jquery.html">http://requirejs.org/docs/jquery.html</a>
+        but here's a quick start anyway</p>
+    <h3>#1: Set up a <code>path</code> configuration for jQuery to your libary</h3>
+<pre data-no-run="true">
+requirejs.config({
+    paths: {
+        'jquery': '../node_modules/jquery/dist/jquery',
+    }
+});
+</pre>
+<h3>#2: Create a <code>jquery</code> module of your own which configure jQuery to be private</h3>
+<p><code>js/jquery-private.js</code>
+    <pre data-no-run="true">
+define(['jquery'], function(jq) {
+    return jq.noConflict(true);
+});
+    </pre>
+</p>
+<h3>#4: Map all modules to get your module instead of the actual one</h3>
+<pre data-no-run="true">
+requirejs.config({
+    baseUrl: 'js',
+    paths: {
+        'jquery': '../node_modules/jquery/dist/jquery',
+    },
+    map: {
+        '*': { 'jquery': 'jquery-private' },
+    }
+});
+</pre>
+<h3>#4: Realise you just broke everything with a cyclic reference</h3>
+<p>Weep gently... But wait, there's a fix:</p>
+<h3>#5: Configure <code>jquery-private</code> to get the <i>real</i> jquery</h3>
+<pre data-no-run="true">
+requirejs.config({
+    baseUrl: 'js',
+    paths: {
+        'jquery': '../node_modules/jquery/dist/jquery',
+    },
+    map: {
+        '*': { 'jquery': 'jquery-private' },
+        'jquery-private': { 'jquery' : 'jquery' }
+    }
+});
+</pre>
+<br/>
+<p>This is how jQuery is loaded for this tutorial. Remember how in the earlier <a href="#/config">Configuration</a>
+    section, the demo was launched up in a new window and you could see that we got jQuery injected as a
+    module dependency, but the global <code>$</code> variable was still in play? No? 
+    <a href="demo/jquery1/index.html" target="_blank">Check it out again</a></p>
+<p>Well, with the above configuration, we see the interesting result that the global <code>$</code> is now
+    <code>undefined</code>:</p>
+<pre>
+define('inline1', ['jquery'], function(myDollar) {
+    return {
+        demo: function() {
+            myDollar.get('someData.json').then(function(data) {
+                log('myDollar.get result: ' + data.title);
+                log('global $ object type: ' + typeof($));
+            });
+        }
+    }
+});
+require(['inline1'], function(mod) {
+    mod.demo();
+});   
+</pre>
+</div>

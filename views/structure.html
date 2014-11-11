@@ -1,0 +1,97 @@
+<div>
+    <p>So far, we've seen hints at what might be a nice way to use RequireJS. Here are my suggestions,
+        for what they are worth:</p>
+    <ul>
+        <li>Keep your app scripts under an expected folder like <code>js</code> or (if you're not in an
+            MVC environment which uses the folder as a library target) <code>scripts</code>; <code>js</code>
+            is nice and terse and unsurprising</li>
+        <li>Use <code>path</code> configuration settings to simplify paths to libraries and keep those
+            libraries separate from your code; irrespective of whether they are downloaded to <code>/lib</code> or
+            come out of a package manager like <code>npm</code> or <code>bower</code>, or a combination
+            of the above (come from a package manager and are processed by build into /lib, for
+            example)</li>
+        <li>Use <code>js/main.js</code> as your entry-point as it's unsurprising. Only do configuration here
+            and then <code>require</code> on your application entry-point, eg from the <code>app</code> module</li>
+        <li>Use <code>shims</code> to make loading of non-AMD scripts easier to maintain and less effort
+            to use within modules</li>
+        <li>Prefer to use Require directives in modules to satisfy their dependencies instead of <code>shim</code>
+            configuration</li>
+        <li>Modules should only require on modules that they are going to use -- not on pre-requisites for other
+            modules. Remember that module loading is <i>asynchronous</i>, so if you have a list of dependencies,
+            you can't guarantee what order they are loaded in. Rather use <code>shims</code> or actual module
+            dependency chains as resolved by loading modules to sort this out. So, for example, if you're going
+            to use a non-AMD AngularJS in your application, rather make it a pre-requisite of your main 
+            <code>app</code> module than requiring it with every controller script.</ul>
+<p>
+    So, for example, a <code>js/main.js</code> like so:
+</p>
+<pre data-no-run="true">
+(function() {
+    requirejs.config({
+        baseUrl: 'js',
+        paths: {
+            'angular': '../node_modules/angular/angular',
+            'angular-route': '../node_modules/angular-route/angular-route',
+            'jquery': '../node_modules/jquery/dist/jquery',
+            'prettify': '../bower_components/google-code-prettify/bin/prettify.min'
+        },
+        map: {
+            '*': { 'jquery': 'jquery-private' },
+            'jquery-private': { 'jquery' : 'jquery' }
+        },
+        shim: {
+            'angular-route': {
+                deps: [ 'angular' ]
+            },
+            'toc': {
+                deps: [ 'jquery' ]
+            },
+            'magic': {
+                deps: [ 'jquery', 'prettify' ]
+            },
+            'app': {
+                deps: [ 'angular', 'angular-route', 'toc', 'magic' ]
+            }
+        }
+    });
+
+    require(['app']);
+})();
+</pre>
+<p>Where <code>app</code> might depend on some modules:</p>
+<p><code>js/app.js</code>
+<pre data-no-run="true">
+define(['mod1', 'mod2', 'mod3'], function(m1, m2, m3) {
+    // main app entry-point magick occurs here
+});
+</pre>
+</p>
+<p><code>js/mod1.js</code>
+<pre data-no-run="true">
+define(['dep1', 'dep2'], function(d1, d2) {
+    return {
+        func: function() {
+            window.alert('this is module #1');
+        }
+    };
+});
+</pre>
+</p>
+<p><code>js/dep1.js</code>
+<pre data-no-run="true">
+define(['dep2'], function(d2) {
+    return {
+        func: function() {
+            window.alert('this is dependency #1');
+        }
+    };
+});
+</pre>
+</p>
+<p>At run time, RequireJS will resolve this dependency chain: as it tries to load <code>mod1</code>, it sees that
+    <code>mod1</code> relies on <code>dep1</code> and <code>dep2</code>, so it tries to load those two modules
+    <i>at the same time</i>. However, upon attempting to load <code>dep1</code>, it sees that it relies on 
+    <code>dep2</code>, thus delays execution of the module block until <code>dep2</code> is loaded, resolves the
+    dependency that <code>dep1</code> had on <code>dep2</code>, and finally comes back to <code>mod1</code> with
+    both dependencies resolved.
+</div>

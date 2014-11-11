@@ -1,4 +1,21 @@
 <div>
-    Welcome home.
-    <button data-ng-click="sayHello();">{{buttonText}}</button>
+    <p>
+    This serves as an introduction tutorial to using RequireJS. The tutorial is makes
+    use of AngularJS and JQuery, and shows how you can mix AMD (Asynchronous Module
+    Definition) with more traditional methods, most especially where libraries you're using
+    are not AMD-aware.
+    </p>
+    <p>
+        Specifically, AngularJS (as at time of writing) appears to not be AMD-aware. JQuery performs
+        some magick when it determines that it's in an AMD environment, such that you can automagically
+        use it from within an AMD. You might be wondering why you'd bother -- the answer is simply so
+        you can ensure that you're getting the expected version of JQuery. JQuery (and other libraries
+        with global registration) <i>essentially overwrite themselves</i> when included multiple times
+        or from different sources -- which is why you may have noticed a JQuery plugin going 
+        &quot;missing&quot; or some other unexpected behaviour when embedding your previously golden
+        JQuery-based application into some legacy system where your spiffy jQuery-2.1.1 (for example)
+        is being overridden by a later load of, say jQuery-1.7.2.
+    </p>
+    <p>Getting JQuery to be completely AMD does require some jumping through hoops, but we'll come back
+        to that.</p>
 </div>

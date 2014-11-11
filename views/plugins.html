@@ -1,0 +1,33 @@
+<div>
+    <p>RequireJS can be extended with plugins. The page at 
+        <a href="http://requirejs.org/docs/plugins.html">http://requirejs.org/docs/plugins.html</a>
+        outlines how to write your own, though there are a couple of useful ones which might come in handy:</p>
+    <ul>
+        <li><code>noext</code> interrupts RequireJS's default behaviour of appending <code>.js</code> onto all
+            required module paths when they haven't been explicitly named. This is useful if you're thinking of
+            blending ASP.NET's bundling with RequireJS and you'd like to pull in a dependency from a bundle
+            URL, which typically doesn't have an extension (and is a mission to configure to have an extension).
+            The caveat with this is that I haven't been successful with using a plugin in the <code>path</code>
+            or <code>shim</code> configuration sections, so you'd have to write a little module to perform the
+            import</li>
+        <li><code>text</code> allows you to import external sources of text, such as an XML or JSON document. For
+            JSON data, you could just use the AJAX method of your framework of choice (ie, jQuery's 
+            <code>$.ajax, or $.get</code> or Angular's <code>$http</code> or a plain old <code>XmlHttpRequest</code>).
+            It's just another option which can neaten your code a little because you won't have to have a nested
+            promise resolution. Just remember that modules are only resolved <b>once</b>, so this is not
+            a viable option for getting JSON from a service. But it's fine for using JSON/XML to configure a project,
+            for example. Also remember that the content comes in in plain text, so you'll need to
+            <code>JSON.parse</code> or <code>$.parseJSON</code> JSON and use jQuery's <code>$.parseHTML</code> / 
+            <code>$.parseXML</code> to parse those kind of documents respectively.</li>
+        <li><code>json</code> like <code>text</code> but does the parsing already</li>
+    </ul>
+    <p>There are others..</p>
+    <p>Plugin invocation is quite simple: the name of the plugin is prepended to the requirement with a bang,
+        for example:
+<pre data-no-run="true">
+define(['text!data/config.json'], function(textData) {
+    var config = JSON.parse(textData);
+});
+</pre>
+    </p>
+</div>
