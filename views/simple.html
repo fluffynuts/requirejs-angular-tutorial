@@ -19,8 +19,8 @@
 
 <code>simple.html</code> forms the entry-point for the application. To get RequireJS working,
 this is the place where we will reference require.js. We also add a <code>data-main</code> attribute
-to the script inclusion with a path <i>relative to the location of index.html</i> for RequireJS to load
-up. We'll use <code>main.js</code> for this. So our simple.html could look like:
+to the script inclusion with a path <i>relative to the location of the entry page where require.js is included</i> 
+for RequireJS to load up. We'll use <code>main.js</code> for this. So our simple.html could look like:
 
 <pre data-no-run="true">
 &lt;html&gt;
@@ -33,7 +33,7 @@ up. We'll use <code>main.js</code> for this. So our simple.html could look like:
 </pre>
 <p>
     Meanwhile, our first simple dependency file is really simple:
-</p>
+    <code>js/dep1.js</code>
 <pre data-no-run="true">
 define([], function() {
     return {
@@ -41,8 +41,10 @@ define([], function() {
     };
 });
 </pre>
+</p>
 <p>Just for interest' sake, let's include an equally simple nested dependency, just so we can see it in
-    action:</p>
+    action:
+    <code>js/nested/dep2.js</code>
 <pre data-no-run="true">
 define([], function() {
     return {
@@ -50,6 +52,7 @@ define([], function() {
     };
 });
 </pre>
+</p>
 <p>What does the above code do? Quite simply, it <code>define</code>s a module within the AMD world. The first
     argument to <code>define</code> is an array of dependencies, as named by RequireJS (or, as we see later,
     ourselves, if we take care of script loading). The second is a function to run for the currently-described
@@ -58,12 +61,12 @@ The <code>main.js</code> file is a rather trivial example of dependency usage:
 <pre data-no-run="true">
 define(['dep', 'nested/dep2'], function(config1, config2) {
     var body = document.getElementsByTagName('body')[0];
-    body.innerHTML = config1.name + config2.text;
+    body.innerHTML = config1.name + '&lt;br/&gt;' + config2.text;
 });
 </pre>
 <a href="demo/simple/index.html" target="_blank">View this demo running in a separate window</a>
 <p>This simple example shows the easiest usage of RequireJS: to resolve dependency scripts by simply
     naming them as dependencies, sans the <code>.js</code> extension, as if they were placed relative
-    to 
+    to the entry point html file of the application.</p>
 <br/>
 
