@@ -5,12 +5,22 @@
         <link rel="stylesheet" type="text/css" href="css/site.css" />
         <link rel="stylesheet" type="text/css" href="bower_components/google-code-prettify/bin/prettify.min.css" />
         <link rel="stylesheet" type="text/css" href="bower_components/google-code-prettify/styles/sons-of-obsidian.css" />
+        <script type="text/javascript">
+            window.setTimeout(function() {
+                var el = document.getElementById('routing-is-broken');
+                if (el) {
+                    el.style.display = '';
+                }
+            }, 5);
+        </script>
     </head>
     <body>
         <ol id="toc">
         </ol>
         <div id="content" data-ng-view>
-            If you can read this then routing isn't working.
+            <div id="routing-is-broken" style="display: none;">
+                If you can read this then routing isn't working.
+            </div>
             <span data-no-copy-toc="true" style="display: none;"></span>
         </div>
     </body>
